@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1014237379367",
+    "project_id": "road-1180a",
+    "storage_bucket": "road-1180a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1014237379367:android:2a7e01df582ea9213a0702",
+        "android_client_info": {
+          "package_name": "com.nodoplus.road"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1014237379367-sdtucdd7ov68v2djkben1nc2steica1h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nodoplus.road",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "1014237379367-1apkgu35r0h05hbch65u1ujs46uq678s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzsUFHM-WFwhBwJ5h1JdALVwkfF5wqQuc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1014237379367-1apkgu35r0h05hbch65u1ujs46uq678s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
