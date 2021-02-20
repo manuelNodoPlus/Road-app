@@ -1,6 +1,6 @@
 // import googleLibphonenumber from 'google-libphonenumber';
 // const phoneUtil = googleLibphonenumber.PhoneNumberUtil.getInstance();
-import react from 'react';
+import React, { useState } from 'react';
 import { showMessage, hideMessage } from "react-native-flash-message";
 
 export const emailValidator = email => {

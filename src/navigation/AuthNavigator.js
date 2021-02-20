@@ -51,13 +51,13 @@ export default function AuthNavigator() {
   }
   useEffect(() => {
     const authSubscriber = Firebase.auth.onAuthStateChanged(onAuthStateChanged) 
-    SplashScreen.hide();
-    AsyncStorage.getItem('notFirstLaunch').then((value) => {
-      setLaunchApp(value);
-      AsyncStorage.setItem('notFirstLaunch', "true");
-    });
-    // unsubscribe on unmount
-    return authSubscriber
+    // // SplashScreen.hide();
+    // AsyncStorage.getItem('notFirstLaunch').then((value) => {
+    //   setLaunchApp(value);
+    //   AsyncStorage.setItem('notFirstLaunch', "true");
+    // });
+    // // unsubscribe on unmount
+    // return authSubscriber
   }, [])
   if (initializing) {
     return null
