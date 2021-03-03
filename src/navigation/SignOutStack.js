@@ -2,8 +2,8 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Login from '../screens/Authentication/Login';
-// import Register from '../screens/Register'
-// import Reset from '../screens/Reset'
+import Register from '../screens/Authentication/Register';
+import Reset from '../screens/Authentication/Reset';
 const Stack = createStackNavigator()
 export default function SignOutStack() {
   return (
@@ -24,7 +24,7 @@ export default function SignOutStack() {
                 headerShown: false
             }}
         />
-        {/* <Stack.Screen name="Register" component={Register} 
+        <Stack.Screen name="Register" component={Register} 
             options={{
                 title: 'My home',
                 headerStyle: {
@@ -53,7 +53,7 @@ export default function SignOutStack() {
                 },
                 headerShown: false
             }}
-        /> */}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   )

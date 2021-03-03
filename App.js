@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import AuthNavigator from './src/navigation/AuthNavigator'
 import { configureFonts, DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import Orientation from 'react-native-orientation-locker';
+import FlashMessage from "react-native-flash-message";
 // import Firebase, { FirebaseContext } from './src/components/Firebase';
 const AuthContext = React.createContext();
 
@@ -35,7 +36,8 @@ class App extends React.Component {
     return (
       // <FirebaseContext.Provider value={new Firebase()}>
       <PaperProvider theme={theme}>
-        <AuthNavigator />        
+        <AuthNavigator />  
+        <FlashMessage position="top" animationDuration={700} duration={3000} />
       </PaperProvider>
       // </FirebaseContext.Provider>
     );

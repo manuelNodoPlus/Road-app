@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StatusBar, Image, ScrollView } from 'react-native';
 // import Header from '../components/Header';
-import { ActivityIndicator } from 'react-native-paper';
 import TextInput from '../../components/Inputs/TextInput';
 import LoadingButton from '../../components/Buttons/Loading';
 import {
     emailValidator,
-    passwordEmptyValidator,
     authError,
     showNotification,
 } from '../../core/Utils/Utils';
@@ -14,22 +12,69 @@ import {
 import { GoogleSignin } from '@react-native-community/google-signin';
 import Firebase from '../../core/Firebase/firebase';
 import styles from './Authentication.style';
-//-----------------------------Facebook Signing-------------------------
-// import { LoginManager, AccessToken } from 'react-native-fbsdk';
-export default function Login({ navigation }) {
+export default function Register({ navigation }) {
+    const [name, setName] = useState({ value: '', error: '' });
     const [email, setEmail] = useState({ value: '', error: '' });
     const [password, setPassword] = useState({ value: '', error: '' });
+    const [confirmPassword, setconfirmPassword] = useState({ value: '', error: '' });
     const [showLoading, setShowLoading] = useState(false);
     const [loading, setLoading] = useState(false);
     const [loadingButtonGoogle, setLoadingButtonGoogle] = useState(false);
-    const [showAlert, setShowAlert] = useState(false);
-    const [messageAlert, setMessageAlert] = useState('false');
-    GoogleSignin.configure({
-        webClientId: '1014237379367-1apkgu35r0h05hbch65u1ujs46uq678s.apps.googleusercontent.com', // From Firebase Console Settings
-    });
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
 
-    //-----------------------------Google Signing-------------------------
+    const register = async () => {
+        setLoading(true);
+        try {
+            const nameError = nameValidator(name.value);
+            const emailError = emailValidator(email.value);
+            const passwordError = passwordValidator(password.value);
+            const confirmPasswordError = confirmPasswordValidator(password.value, confirmPassword.value);
+            if (emailError || passwordError || confirmPasswordError) {
+                // setName({ ...name, error: nameError });
+                setEmail({ ...email, error: emailError });
+                setPassword({ ...password, error: passwordError });
+                setconfirmPassword({ ...confirmPassword, error: confirmPasswordError });
+                setLoading(false);
+                return;
+            } else {
+
+                setShowLoading(true);
+                Firebase.auth.createUserWithEmailAndPassword(email.value, password.value).then(() => {
+                    Firebase.db.ref(`/users/${Firebase.auth.currentUser.uid}`).set({
+                        uid: Firebase.currentUser.uid,
+                        email: Firebase.currentUser.email,
+                        emailVerified: Firebase.currentUser.emailVerified,
+                        providerData: Firebase.auth.providerData,
+                        createdAt: Firebase.serverValue.TIMESTAMP
+                    }).catch((error) => {
+                        setLoading(false);
+                        showNotification('Lo sentimos ocurrió un error, intentalo más tarde','default');
+                    });
+                    Firebase.currentUser.sendEmailVerification();
+                }).catch((error) => {
+                    console.log(error.code)
+                    setLoading(false);
+                    showNotification(authError(error.code), 'default');
+                });
+                if (Firebase.currentUser !== null && !Firebase.currentUser.emailVerified) {
+                    Firebase.signOut();
+                    showNotification('Ahora verifica tu correo', 'default');
+
+                    await sleep(3000);
+                    navigation.navigate('Login')
+                }
+                setLoading(false);
+                
+            }
+        } catch (e) {
+            console.log(e)
+            setLoading(false);
+            showNotification('Lo sentimos ocurrió un error, intentalo más tarde', 'default');
+        }
+    };
     async function onGoogleButtonPress() {
         setLoadingButtonGoogle(loadingButtonGoogle ? false : true);
         try {
@@ -62,53 +107,6 @@ export default function Login({ navigation }) {
         }
     }
 
-    //-------------------------------Phone number---------------------------------------------------
-    const [confirm, setConfirm] = useState(null);
-
-    const [code, setCode] = useState('');
-    const login = async () => {
-        try {
-            setLoading(true);
-            const emailError = emailValidator(email.value);
-            const passwordError = passwordEmptyValidator(password.value);
-            if (emailError || passwordError) {
-                // setName({ ...name, error: nameError });
-                setEmail({ ...email, error: emailError });
-                setPassword({ ...password, error: passwordError });
-                setLoading(false);
-                return;
-            } else {
-
-
-                await Firebase.auth.signInWithEmailAndPassword(email.value, password.value).then(async () => {
-
-                    Firebase.db.ref(`/users/${Firebase.auth.currentUser.uid}`).update({
-                        uid: Firebase.auth.currentUser.uid,
-                        email: Firebase.auth.currentUser.email,
-                        emailVerified: Firebase.auth.currentUser.emailVerified,
-                        providerData: Firebase.auth.currentUser.providerData,
-                        createdAt: Firebase.serverValue.TIMESTAMP
-                    });
-
-                    if (!Firebase.auth.currentUser.emailVerified) {
-                        await Firebase.auth.signOut();
-                        showNotification('Por favor, verifica tu correo primero', 'default');
-                    }
-                    setLoading(false);
-                }).catch((error) => {
-                    setLoading(false);
-                    showNotification(authError(error.code), 'default');
-                });
-                // setShowLoading(false);
-
-
-            }
-        } catch (e) {
-            setLoading(false);
-            showNotification('Lo sentimos ocurrió un error, intentalo más tarde', 'default');
-        }
-    };
-
     const buttonGoogleContent = () => {
         return (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -125,12 +123,12 @@ export default function Login({ navigation }) {
         )
     }
 
-    const buttonLoginContent = () => {
+    const buttonRegisterContent = () => {
         return (
             <Text
                 style={[styles.textLogin, { textTransform: 'uppercase' }]}
             >
-                Iniciar sesión
+                Registrarse
             </Text>
         )
     }
@@ -142,16 +140,15 @@ export default function Login({ navigation }) {
                 <View style={{ marginLeft: 30, marginRight: 30 }}>
                     {/* <Logo /> */}
                     {/* <Image
-                        source={require('../assets/logo.png')}
+                        source={require('../../assets/logo.png')}
                         style={{
                             width: '100%', height: hp(19),
                             marginTop: 40,
                             alignSelf: "center", alignSelf: 'center'
                         }}
                         resizeMode="center"
-                    /> */}
-                    {/* <Header  >Iniciar sesión en TibaPlus</Header> */}
-
+                    />
+                    <Header >Registrate en TibaPlus</Header> */}
                     <TextInput
                         label="Correo"
                         returnKeyType="next"
@@ -164,7 +161,6 @@ export default function Login({ navigation }) {
                         textContentType="emailAddress"
                         keyboardType="email-address"
                     />
-
                     <TextInput
                         label="Contraseña"
                         returnKeyType="done"
@@ -174,18 +170,19 @@ export default function Login({ navigation }) {
                         errorText={password.error}
                         secureTextEntry
                     />
-
-                    <View style={styles.forgotPassword}>
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('Reset')}
-                        >
-                            <Text style={styles.label}>Recuperar contraseña</Text>
-                        </TouchableOpacity>
-                    </View>
+                    <TextInput
+                        label="Confirmar contraseña"
+                        returnKeyType="done"
+                        value={confirmPassword.value}
+                        onChangeText={text => setconfirmPassword({ value: text, error: '' })}
+                        error={!!confirmPassword.error}
+                        errorText={confirmPassword.error}
+                        secureTextEntry
+                    />
                     <LoadingButton
                         buttonStyle={styles.buttonLogin}
-                        content={buttonLoginContent}
-                        onPress={login}
+                        content={buttonRegisterContent}
+                        onPress={register}
                         loading={loading}
                     />
 
@@ -197,18 +194,15 @@ export default function Login({ navigation }) {
                         loading={loadingButtonGoogle}
                     />
                     <View style={styles.row}>
-                        <Text style={styles.label}>¿Aún no tienes una cuenta? </Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                            <Text style={styles.link}>Registrate</Text>
+                        <Text style={styles.label}>¿Ya eres un usuario? </Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                            <Text style={styles.link}>Inicia sesión</Text>
                         </TouchableOpacity>
                     </View>
+
                 </View>
             </View>
-            {showLoading &&
-                <View style={styles.activity}>
-                    <ActivityIndicator size="large" color="white" />
-                </View>
-            }
         </ScrollView>
     );
 }
+
